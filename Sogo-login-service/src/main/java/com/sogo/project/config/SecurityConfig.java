@@ -14,12 +14,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.sogo.project.jwt.CustomLogoutFilter;
 import com.sogo.project.jwt.JWTFilter;
 import com.sogo.project.jwt.JWTUtil;
 import com.sogo.project.jwt.LoginFilter;
+import com.sogo.project.jwt.repository.RefreshRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +35,7 @@ public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	//JWTUtil 주입
 	private final JWTUtil jwtUtil;
+	private final RefreshRepository refreshRepository;
 	
 	@Bean
     public AuthenticationManager authenticationManager
@@ -83,8 +87,8 @@ public class SecurityConfig {
 				//경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                .antMatchers("/login", "/", "/join", "/users/refresh").permitAll()
-                .antMatchers("/**").hasAnyRole("USER","ADMIN")
+                .antMatchers("/login", "/", "/join").permitAll()
+                .antMatchers("/reissue").hasRole("USER")
 				.antMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
@@ -95,8 +99,14 @@ public class SecurityConfig {
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         //AuthenticationManager()와 JWTUtil 인수 전달
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), 
+                		jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
+        //로그아웃 필터
+        http
+        		.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), 
+        				LogoutFilter.class);
+        
         
 				//세션 설정
         http

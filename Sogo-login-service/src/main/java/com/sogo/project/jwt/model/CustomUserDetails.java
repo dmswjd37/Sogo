@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.sogo.project.entity.UserEntity;
 import com.sogo.project.jwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

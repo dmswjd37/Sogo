@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.sogo.project.entity.UserEntity;
 import com.sogo.project.jwt.model.CustomUserDetails;
-import com.sogo.project.jwt.model.UserEntity;
 import com.sogo.project.jwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

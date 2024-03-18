@@ -3,8 +3,8 @@ package com.sogo.project.join.service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sogo.project.entity.UserEntity;
 import com.sogo.project.jwt.model.JoinDTO;
-import com.sogo.project.jwt.model.UserEntity;
 import com.sogo.project.jwt.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

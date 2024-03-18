@@ -1,4 +1,4 @@
-package com.sogo.project.jwt.model;
+package com.sogo.project.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

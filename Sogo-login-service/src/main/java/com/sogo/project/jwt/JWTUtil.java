@@ -23,9 +23,14 @@ public class JWTUtil {
         key = Keys.hmacShaKeyFor(byteSecretKey);
     }
 
-    public String getUsername(String token) {
+    public String getEmail(String token) {
 
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("username", String.class);
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("email", String.class);
+    }
+    
+    public String getName(String token) {
+    	
+    	return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("name", String.class);
     }
 
     public String getRole(String token) {
@@ -38,12 +43,19 @@ public class JWTUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().before(new Date());
     }
 
-    public String createJwt(String email, String role, String name, Long expiredMs) {
+    //토큰 판단용
+    public String getCategory(String token) {
+        
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("category", String.class);
+    }
+    
+    public String createJwt(String category, String email, String role, String name, Long expiredMs) {
 
 		Claims claims = Jwts.claims();
         claims.put("email", email);
         claims.put("name", name);
         claims.put("role", role);
+        claims.put("category", category);
 
         return Jwts.builder()
                 .setClaims(claims)
