@@ -6,6 +6,7 @@ import BackgroundImage from './components/BackgroundImage';
 import Footer from './components/Footer';
 //import SliderSection from './home/SliderSection';
 import LoginPage from './Member/Login';
+import SignupPage from './Member/Signup';
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
             <section class="about_section layout_padding">
                 <Routes>
                     <Route path="/Login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupPage />} />
                 </Routes>
             </section>
             <Footer />
