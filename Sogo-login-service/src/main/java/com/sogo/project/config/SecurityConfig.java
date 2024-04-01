@@ -67,6 +67,7 @@ public class SecurityConfig {
                 configuration.setMaxAge(3600L);
 
                 configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                configuration.setExposedHeaders(Collections.singletonList("access"));
 
                 return configuration;
             }
