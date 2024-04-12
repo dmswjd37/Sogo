@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-function LoginPage() {
+const LoginPage = () => {
   document.body.classList.add('sub_page');
 
   const navigate = useNavigate();
@@ -21,12 +21,13 @@ function LoginPage() {
         email: email,
         password: password
       }),
+      credentials: 'include' // 쿠키를 포함한 요청을 보냅니다.
     })
     .then((response) => {
       if (response.status === 200) {
         // 로그인 성공시 응답 헤더에서 access 값을 가져와서 저장
         const accessToken = response.headers.get('access');
-        localStorage.setItem("token", accessToken);
+        localStorage.setItem("access", accessToken);
         navigate('/'); // 로그인 성공 후 이동할 페이지로 설정
       }
     })

@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-function Header() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    // 로그인 상태에 따라 로그인/로그아웃 버튼 텍스트 변경
+const Header = ({isLogIn}) => {
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        setIsLoggedIn(false);
+        fetch('http://localhost:8089/logout', {
+            method: 'POST',
+            credentials: 'include',
+        })
+        .then(response => {
+            if (response.ok) {
+                localStorage.clear();
+                navigate('/');
+            } else {
+                throw new Error('Logout failed');
+            }
+        })
+        .catch(error => {
+            console.error('Logout error:', error);
+        });
     };
-
-    const handleLogin = () => {
-        // 로그인 성공 시에 호출되는 함수
-        setIsLoggedIn(true);
-    };
-
     return (
         <header className="header_section">
             <div className="container">
@@ -43,15 +49,12 @@ function Header() {
                             <li className="nav-item">
                                 <a className="nav-link" href="why.html">Why Us</a>
                             </li>
-                            {isLoggedIn ? (
-                                <li className="nav-item">
-                                    <button onClick={handleLogout} className="nav-link">Logout</button>
-                                </li>
-                            ) : (
-                                <li className="nav-item">
-                                    <Link className="nav-link" to="/Login" onClick={handleLogin}>Login</Link>
-                                </li>
-                            )}
+                            <li className="nav-item">
+                                {isLogIn ? 
+                                    <Link className="nav-link" onClick={handleLogout}>Logout</Link> :
+                                    <Link className="nav-link" to="/Login">Login</Link>
+                                }
+                            </li>
                         </ul>
                         <form className="form-inline">
                             <button className="btn my-2 my-sm-0 nav_search-btn" type="submit">
