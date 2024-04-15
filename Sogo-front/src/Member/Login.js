@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  document.body.classList.add('sub_page');
-
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState('customer'); // 초기값을 '고객 로그인'으로 설정
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,19 +24,17 @@ const LoginPage = () => {
         email: email,
         password: password
       }),
-      credentials: 'include' // 쿠키를 포함한 요청을 보냅니다.
+      credentials: 'include'
     })
     .then((response) => {
       if (response.status === 200) {
-        // 로그인 성공시 응답 헤더에서 access 값을 가져와서 저장
         const accessToken = response.headers.get('access');
         localStorage.setItem("access", accessToken);
-        navigate('/'); // 로그인 성공 후 이동할 페이지로 설정
+        navigate('/'); 
       }
     })
     .catch((error) => {
       console.error('Error:', error);
-      // 에러 처리
     });
   };
   
@@ -45,6 +46,20 @@ const LoginPage = () => {
             <div className="form-block mx-auto">
               <div className="text-center mb-5">
                 <h3 className="text-uppercase">Login to <strong>SOGO</strong></h3>
+              </div>
+              <div className="tab-menu">
+                <ul className="nav nav-tabs nav-justified">
+                  <li className="nav-item">
+                    <button className={`nav-link w-100 ${activeTab === 'customer' ? 'active text-warning' : ''}`} onClick={() => handleTabChange('customer')}>
+                      고객 로그인
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button className={`nav-link w-100 ${activeTab === 'business' ? 'active text-warning' : ''}`} onClick={() => handleTabChange('business')}>
+                      사업자 로그인
+                    </button>
+                  </li>
+                </ul>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="form-group first">
@@ -65,11 +80,15 @@ const LoginPage = () => {
                     <Link to="/Signup" className="forgot-pass">Create account</Link>
                   </span> 
                 </div>
-                <button type="submit" className="btn btn-block py-2 btn-primary">Log In</button>
-                <span className="text-center my-3 d-block">or</span>
-                <div>
-                  <a href="/" className="btn btn-block py-2 btn-google"><span className="icon-google mr-3"></span> Login with Google</a>
-                </div>
+                <button type="submit" className="btn btn-block py-2 btn-primary">{activeTab === 'customer' ? '로그인' : '사업자 로그인'}</button>
+                {activeTab === 'customer' && (
+                  <div>
+                    <span className="text-center my-3 d-block">or</span>
+                    <div>
+                      <a href="/" className="btn btn-block py-2 btn-google"><span className="icon-google mr-3"></span> Login with Google</a>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           </div>
