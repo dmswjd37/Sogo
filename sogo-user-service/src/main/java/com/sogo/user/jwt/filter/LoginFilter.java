@@ -1,11 +1,14 @@
 package com.sogo.user.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sogo.user.entity.RefreshEntity;
 import com.sogo.user.jwt.model.CustomUserDetails;
 import com.sogo.user.jwt.model.LoginDTO;
+import com.sogo.user.jwt.repository.RefreshRepository;
 import com.sogo.user.jwt.utility.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,11 +19,13 @@ import org.springframework.util.StreamUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 @RequiredArgsConstructor
@@ -30,6 +35,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     //JWTUtil 주입
     private final JWTUtil jwtUtil;
+
+    private final RefreshRepository refreshRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -76,9 +83,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(idEmail, role, 60*60*10L);
+        //토큰 생성
+        String access = jwtUtil.createJwt("access", idEmail, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", idEmail, role, 86400000L);
 
-        response.addHeader("Authorization", "Bearer " + token);
+        //Refresh 토큰 저장
+        addRefreshEntity(idEmail, refresh, 86400000L);
+
+        //응답 설정
+        response.setHeader("access", access);
+        response.addCookie(createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
     }
 
     //로그인 실패시 실행하는 메소드
@@ -87,5 +102,30 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
+    }
+
+    //Refresh 토큰 저장
+    private void addRefreshEntity(String idEmail, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        RefreshEntity refreshEntity = new RefreshEntity();
+        refreshEntity.setIdEmail(idEmail);
+        refreshEntity.setRefresh(refresh);
+        refreshEntity.setExpiration(date.toString());
+
+        refreshRepository.save(refreshEntity);
+    }
+
+    //쿠키 생성 메소드
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }

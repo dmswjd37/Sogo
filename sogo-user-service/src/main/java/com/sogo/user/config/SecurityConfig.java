@@ -2,6 +2,7 @@ package com.sogo.user.config;
 
 import com.sogo.user.jwt.filter.JWTFilter;
 import com.sogo.user.jwt.filter.LoginFilter;
+import com.sogo.user.jwt.repository.RefreshRepository;
 import com.sogo.user.jwt.utility.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,8 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     //JWTUtil 주입
     private final JWTUtil jwtUtil;
+
+    private final RefreshRepository refreshRepository;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -83,6 +86,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .antMatchers("/login", "/", "/join").permitAll()
+                        .antMatchers("/reissue").permitAll()
                         .antMatchers("/user").permitAll()
                         .anyRequest().authenticated());
 
@@ -92,9 +96,9 @@ public class SecurityConfig {
 
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         //AuthenticationManager()와 JWTUtil 인수 전달
+        //LoginFilter 등록시 refreshRepository 의존성 주입
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http
