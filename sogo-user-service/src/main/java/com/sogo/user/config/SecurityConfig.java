@@ -1,5 +1,6 @@
 package com.sogo.user.config;
 
+import com.sogo.user.jwt.filter.CustomLogoutFilter;
 import com.sogo.user.jwt.filter.JWTFilter;
 import com.sogo.user.jwt.filter.LoginFilter;
 import com.sogo.user.jwt.repository.RefreshRepository;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -99,6 +101,10 @@ public class SecurityConfig {
         //LoginFilter 등록시 refreshRepository 의존성 주입
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+
+        //logout
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         //세션 설정
         http
