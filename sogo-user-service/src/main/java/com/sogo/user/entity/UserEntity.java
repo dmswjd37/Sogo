@@ -28,4 +28,7 @@ public class UserEntity {
 
     @Column(length = 50)
     private String role;
+
+    @Column(length = 500)
+    private String usersns;
 }
