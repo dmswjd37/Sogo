@@ -3,6 +3,8 @@ package com.sogo.user.jwt.filter;
 import com.sogo.user.entity.UserEntity;
 import com.sogo.user.jwt.model.CustomUserDetails;
 import com.sogo.user.jwt.utility.JWTUtil;
+import com.sogo.user.oauth2.model.CustomOAuth2User;
+import com.sogo.user.oauth2.model.UserDTO;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -67,18 +69,39 @@ public class JWTFilter extends OncePerRequestFilter {
         // username, role 값을 획득
         String idEmail = jwtUtil.getIdEmail(accessToken);
         String role = jwtUtil.getRole(accessToken);
+        String usersns = jwtUtil.getUsersns(accessToken);
 
-        //userEntity를 생성하여 값 set
-        UserEntity userEntity = new UserEntity();
-        userEntity.setIdEmail(idEmail);
-        userEntity.setPassword("temppassword");
-        userEntity.setRole(role);
+        Authentication authToken;
 
-        //UserDetails에 회원 정보 객체 담기
-        CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
+        //일반 로그인
+        if(usersns == null || usersns.isEmpty()){
+            //userEntity를 생성하여 값 set
+            UserEntity userEntity = new UserEntity();
+            userEntity.setIdEmail(idEmail);
+            userEntity.setPassword("temppassword");
+            userEntity.setRole(role);
 
-        //스프링 시큐리티 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+            //UserDetails에 회원 정보 객체 담기
+            CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
+
+            //스프링 시큐리티 인증 토큰 생성
+            authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+
+        //oauth2
+        } else {
+
+            //userDTO를 생성하여 값 set
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUsersns(usersns);
+            userDTO.setRole(role);
+
+            //UserDetails에 회원 정보 객체 담기
+            CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+
+            //스프링 시큐리티 인증 토큰 생성
+            authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        }
+
         //세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

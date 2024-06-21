@@ -5,6 +5,7 @@ import com.sogo.user.jwt.filter.JWTFilter;
 import com.sogo.user.jwt.filter.LoginFilter;
 import com.sogo.user.jwt.repository.RefreshRepository;
 import com.sogo.user.jwt.utility.JWTUtil;
+import com.sogo.user.oauth2.filter.CustomSuccessHandler;
 import com.sogo.user.oauth2.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -40,6 +42,8 @@ public class SecurityConfig {
 
     //oauth2 추가
     private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final CustomSuccessHandler customSuccessHandler;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -71,6 +75,7 @@ public class SecurityConfig {
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
 
+                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
                         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
                         return configuration;
@@ -89,11 +94,13 @@ public class SecurityConfig {
         http
                 .httpBasic((auth) -> auth.disable());
 
-        //oauth2 추가
+        //oauth2
         http
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService)));
+                                .userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler)
+                );
 
         //경로별 인가 작업
         http
@@ -102,6 +109,10 @@ public class SecurityConfig {
                         .antMatchers("/reissue").permitAll()
                         .antMatchers("/user").permitAll()
                         .anyRequest().authenticated());
+
+        //JWTFilter 추가
+        http
+                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
 
         //JWTFilter 등록
         http
