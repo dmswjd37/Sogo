@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.Iterator;
 
 @RequiredArgsConstructor
+@Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
@@ -38,8 +40,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access", usersns, role, 60*60*60L);
-        String refresh = jwtUtil.createJwt("refresh", usersns, role, 60*60*60L);
+        boolean oauth = true;
+        String access = jwtUtil.createJwt("access", usersns, role, 60*60*60L, oauth);
+        String refresh = jwtUtil.createJwt("refresh", usersns, role, 60*60*60L, oauth);
 
         //Refresh 토큰 저장
         addRefreshEntity(usersns, refresh, 86400000L);

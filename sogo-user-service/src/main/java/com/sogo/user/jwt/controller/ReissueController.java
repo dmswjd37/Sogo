@@ -78,9 +78,27 @@ public class ReissueController {
         String idEmail = jwtUtil.getIdEmail(refresh);
         String role = jwtUtil.getRole(refresh);
 
-        //make new JWT
-        String newAccess = jwtUtil.createJwt("access", idEmail, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", idEmail, role, 86400000L);
+        String usersns = jwtUtil.getUsersns(refresh);
+        boolean oatuh;
+        String newAccess;
+        String newRefresh;
+        //일반 로그인
+        if(usersns == null || usersns.isEmpty()){
+            oatuh = false;
+
+            //make new JWT
+            newAccess = jwtUtil.createJwt("access", idEmail, role, 600000L, oatuh);
+            newRefresh = jwtUtil.createJwt("refresh", idEmail, role, 86400000L, oatuh);
+
+        //oauth2
+        } else {
+            oatuh = true;
+
+            //make new JWT
+            newAccess = jwtUtil.createJwt("access", idEmail, role, 600000L, oatuh);
+            newRefresh = jwtUtil.createJwt("refresh", idEmail, role, 86400000L, oatuh);
+
+        }
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);

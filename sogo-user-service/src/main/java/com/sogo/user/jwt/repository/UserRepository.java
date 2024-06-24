@@ -9,4 +9,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     //idEmail을 받아 DB 테이블에서 회원을 조회하는 메소드 작성
     UserEntity findByIdEmail(String idEmail);
+
+    UserEntity findByUsersns(String usersns);
 }

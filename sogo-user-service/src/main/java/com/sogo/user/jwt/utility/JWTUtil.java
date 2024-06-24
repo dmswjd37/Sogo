@@ -45,24 +45,11 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("usersns", String.class);
     }
 
-    public String createJwt(String category, String idEmail, String role, Long expiredMs) {
+    public String createJwt(String category, String idEmail, String role, Long expiredMs, boolean oauth) {
 
         return Jwts.builder()
                 .claim("category", category)
-                .claim("idEmail", idEmail)
-                .claim("role", role)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
-                .signWith(secretKey)
-                .compact();
-    }
-
-    public String createJwt(String category, String usersns, String idEmail, String role, Long expiredMs) {
-
-        return Jwts.builder()
-                .claim("category", category)
-                .claim(("usersns"), usersns)
-                .claim("idEmail", idEmail)
+                .claim(oauth ? "usersns" : "idEmail", idEmail)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))

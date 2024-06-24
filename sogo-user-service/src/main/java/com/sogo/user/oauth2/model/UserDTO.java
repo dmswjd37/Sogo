@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class UserDTO {
 
-    private String role;
-    private String username;
-    private String usersns;
+    private String role;//권한
+    private String username;//이름
+    private String usersns;//sns 정보
 }

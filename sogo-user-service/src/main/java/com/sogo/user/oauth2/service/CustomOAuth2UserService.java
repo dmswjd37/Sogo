@@ -1,11 +1,11 @@
 package com.sogo.user.oauth2.service;
 
 import com.sogo.user.entity.UserEntity;
+import com.sogo.user.jwt.repository.UserRepository;
 import com.sogo.user.oauth2.model.GoogleResponse;
 import com.sogo.user.oauth2.model.CustomOAuth2User;
 import com.sogo.user.oauth2.model.OAuth2Response;
 import com.sogo.user.oauth2.model.UserDTO;
-import com.sogo.user.oauth2.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -22,6 +22,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
+        //응답
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         System.out.println("oAuth2User="+oAuth2User);
