@@ -95,8 +95,8 @@ public class ReissueController {
             oatuh = true;
 
             //make new JWT
-            newAccess = jwtUtil.createJwt("access", idEmail, role, 600000L, oatuh);
-            newRefresh = jwtUtil.createJwt("refresh", idEmail, role, 86400000L, oatuh);
+            newAccess = jwtUtil.createJwt("access", usersns, role, 600000L, oatuh);
+            newRefresh = jwtUtil.createJwt("refresh", usersns, role, 86400000L, oatuh);
 
         }
 
